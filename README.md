@@ -31,9 +31,9 @@ Simple rate limiting is implemented using express-rate-limit,a package that simp
    Create a `.env` file in the root of the project and add these necessary environment variables:
 
    ```.env
-   PORT=3000
-   MONGO_URI=mongodb://127.0.0.1:27017/notesApp
-   JWT_SECRET=your-secret-key
+   PORT = 3000
+   MONGODB_CONNECTION=mongodb://127.0.0.1:27017/notesApp
+   SECRET_KEY="12345678"
    ```
 
 4. Run the application:
