@@ -6,7 +6,7 @@ router.use(express.urlencoded({extended:true}));
 router.use(express.json());
 router.use(authenticate);
 
-const {getAllNotes,getNotesById,saveNewNote,updateNote,deleteNote,shareNote,searchNote} =  require('../controllers/notesController');
+const {getAllNotes,getNotesById,saveNewNote,updateNote,deleteNote,shareNote} =  require('../controllers/notesController');
 
 router.get('/',getAllNotes);
 
@@ -19,6 +19,8 @@ router.put('/:id',updateNote);
 router.delete('/:id',deleteNote);
 
 router.post('/:id/share',shareNote);
+
+
 
 
 

@@ -1,6 +1,8 @@
 const { title, nextTick } = require('process');
 const Note = require('../models/note');
 const User = require('../models/user');
+const axios = require('axios');
+const MongoClient = require('mongodb').MongoClient;
 
 const getAllNotes = async(req,res)=>{
  await Note.find({isDeleted : false,userId:req.userId})
@@ -209,7 +211,77 @@ const shareNote = async (req, res) => {
       });
     }
   };
+   
+  const getEmbedding = async(query)=> {
+    const url = 'https://api.openai.com/v1/embeddings';
+    const openai_key = process.env.openai_key;
+
+    let response = await axios.post(url, {
+      input: query,
+      model: "text-embedding-ada-002"
+    }, {
+      headers: {
+          'Authorization': `Bearer ${openai_key}`,
+          'Content-Type': 'application/json'
+      }
+    });
+    if(response.status === 200) {
+      return response.data.data[0].embedding;
+    } else {
+    throw new Error(`Failed to get embedding. Status code: ${response.status}`);
+    }
+  } 
+  const contextSearchText = async(req,res) =>{
+    const searchText = req.query.q;
+
+    const url = process.env.MONGODB_CONNECTION;
+    const client = new MongoClient(url);
+
+
+    try{
+      await client.connect();
+        
+      const db = client.db('test'); 
+      const collection = db.collection('notes');
+      const embedding = await getEmbedding(searchText);
+      const items = await collection.aggregate([
+        {"$vectorSearch": {
+          "queryVector": embedding,
+          "path": "body_embedding",
+          "numCandidates": 100,
+          "limit": 5,
+          "index": "notesBodyIndex",
+            }},
+            {
+              $match:
+                {
+                  isDeleted: false,
+                },
+            },
+        {"$project":{
+          title:1,
+          body:1
+        }}
+      ]).toArray();
   
+      if (items.length === 0) {
+        return res.status(200).json({ message: "No results" });
+      }
+  
+      return res.status(200).json({
+        count: items.length,
+        notes: items,
+      });
+    }catch(err){
+      console.error(err);
+      return res.status(500).json({
+        message: "Something went wrong",
+        error: err,
+    })
+  }
+}
 
 
-module.exports = {getAllNotes,getNotesById,saveNewNote,updateNote,deleteNote,shareNote,searchNote};
+
+
+module.exports = {getAllNotes,getNotesById,saveNewNote,updateNote,deleteNote,shareNote,searchNote,contextSearchText};
