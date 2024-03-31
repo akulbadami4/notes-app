@@ -1,14 +1,14 @@
 
-# Node.js Express Notes App
+# Notes App with semantic search
 
-This is a simple and secure Node.js Express application for managing notes. Users can perform CRUD operations on their notes, along with functionality such as searching and sharing notes with other users.
+This is a simple and secure Node.js Express application for managing notes. Users can perform CRUD operations on their notes, along with functionality to perform search across notes that searchs not only based on the text but also based on the semantic meaning behind the text.
 
 ## Tech Stack
 Node,Express,MongoDB
 Express is an open-source web appliation framework that is lightweight which privides a simple routing for requests and middleware to extend the functionality of the application.
 Authentication is implemented with the help of bcrypt to salt and hash the password and jsonwebtoken is used to generate a jwt token once the user is authenticated, making the application secure.
 Simple rate limiting is implemented using express-rate-limit,a package that simplifies the procedure for adding rate limiting based on user IP.
-
+Semantic search is implemented using OpenAI's embeddings API and Mongodb Atlas Vector search.
 
 
 ## Getting Started
@@ -58,6 +58,7 @@ Simple rate limiting is implemented using express-rate-limit,a package that simp
 - `DELETE/api/notes/:id`: Delete a note by ID.
 - `POST/api/notes/:id/share`: Share the note with another user.
 - `POST/api/search?q=query`: Search for notes based on a query.
+- `POST/api/search/contextSearchText?q=query` Perfoms a semantic search based on the query.
 
 
 ### Authentication
